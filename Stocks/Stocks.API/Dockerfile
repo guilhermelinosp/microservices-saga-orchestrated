@@ -5,7 +5,6 @@ EXPOSE 443
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Stocks/Stocks.API/Stocks.API.csproj", "Stocks/Stocks.API/"]
 COPY ["Stocks/Stocks.Domain/Stocks.Domain.csproj", "Stocks/Stocks.Domain/"]
@@ -14,11 +13,10 @@ COPY ["Stocks/Stocks.Infrastructure/Stocks.Infrastructure.csproj", "Stocks/Stock
 RUN dotnet restore "Stocks/Stocks.API/Stocks.API.csproj"
 COPY . .
 WORKDIR "/src/Stocks/Stocks.API"
-RUN dotnet build "Stocks.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Stocks.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Stocks.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Stocks.API.csproj" -c Release -o /app/publish /p:PublishAot=true /p:UseAppHost=false /p:RuntimeIdentifier=linux-x64
 
 FROM base AS final
 WORKDIR /app

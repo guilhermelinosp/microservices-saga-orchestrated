@@ -5,7 +5,6 @@ EXPOSE 443
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Payments/Payments.API/Payments.API.csproj", "Payments/Payments.API/"]
 COPY ["Payments/Payments.Domain/Payments.Domain.csproj", "Payments/Payments.Domain/"]
@@ -14,11 +13,10 @@ COPY ["Payments/Payments.Infrastructure/Payments.Infrastructure.csproj", "Paymen
 RUN dotnet restore "Payments/Payments.API/Payments.API.csproj"
 COPY . .
 WORKDIR "/src/Payments/Payments.API"
-RUN dotnet build "Payments.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Payments.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Payments.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Payments.API.csproj" -c Release -o /app/publish /p:PublishAot=true /p:UseAppHost=false /p:RuntimeIdentifier=linux-x64
 
 FROM base AS final
 WORKDIR /app
