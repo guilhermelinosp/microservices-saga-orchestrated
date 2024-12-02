@@ -5,7 +5,6 @@ EXPOSE 443
 EXPOSE 80
 
 FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["Orchestrators/Orchestrators.API/Orchestrators.API.csproj", "Orchestrators/Orchestrators.API/"]
 COPY ["Orchestrators/Orchestrators.Domain/Orchestrators.Domain.csproj", "Orchestrators/Orchestrators.Domain/"]
@@ -14,11 +13,10 @@ COPY ["Orchestrators/Orchestrators.Infrastructure/Orchestrators.Infrastructure.c
 RUN dotnet restore "Orchestrators/Orchestrators.API/Orchestrators.API.csproj"
 COPY . .
 WORKDIR "/src/Orchestrators/Orchestrators.API"
-RUN dotnet build "Orchestrators.API.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "Orchestrators.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "Orchestrators.API.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "Orchestrators.API.csproj" -c Release -o /app/publish /p:PublishAot=true /p:UseAppHost=false /p:RuntimeIdentifier=linux-x64
 
 FROM base AS final
 WORKDIR /app
