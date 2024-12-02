@@ -40,7 +40,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ${{ matrix.service }}/${{ matrix.service }}.API/Dockerfile
+          file: ./${{ matrix.service }}/${{ matrix.service }}.API/Dockerfile
           push: true
           tags: |
             ghcr.io/${{ github.actor }}/${{ steps.set_service_lowercase.outputs.service_lowercase }}-api:latest
