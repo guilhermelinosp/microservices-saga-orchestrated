@@ -1,8 +1,6 @@
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: "main"
 
 jobs:
   analyze:
@@ -16,18 +14,27 @@ jobs:
       fail-fast: false
       matrix:
         language: [ 'csharp' ]
+        dotnet-version: [ '9.0.x' ] # Use .NET 9
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: ${{ matrix.dotnet-version }}
+
+    - name: Install dependencies
+      run: dotnet restore
+
+    - name: Build the project
+      run: dotnet build --no-restore --configuration Release
+
     - name: Initialize CodeQL
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
-
-    - name: Autobuild
-      uses: github/codeql-action/autobuild@v3
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v3
