@@ -16,6 +16,7 @@ WORKDIR "/src/Inventories/Inventories.API"
 RUN dotnet build "Inventories.API.csproj" -c Release -o /app/build
 
 FROM build AS publish
+RUN apt-get update && apt-get install -y clang
 RUN dotnet publish "Inventories.API.csproj" -c Release -o /app/publish /p:PublishAot=true /p:UseAppHost=false /p:RuntimeIdentifier=linux-x64
 
 FROM base AS final

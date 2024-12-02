@@ -13,7 +13,8 @@ jobs:
 
     strategy:
       matrix:
-        service: ["Inventories", "Orchestrators", "Orders", "Payments", "Stocks"]
+        service:
+          ["Inventories", "Orchestrators", "Orders", "Payments", "Stocks"]
 
     steps:
       # Checkout the repository to access the code
@@ -43,4 +44,4 @@ jobs:
           file: ./${{ matrix.service }}/${{ matrix.service }}.API/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest
+            ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}.api:latest
