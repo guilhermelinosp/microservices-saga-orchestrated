@@ -32,7 +32,8 @@ jobs:
       - name: Set Service Lowercase
         id: set_service_lowercase
         run: |
-          echo "service_lowercase=${{ matrix.service | toLowerCase }}" >> $GITHUB_ENV
+          service_lowercase=$(echo "${{ matrix.service }}" | tr '[:upper:]' '[:lower:]')
+          echo "service_lowercase=${service_lowercase}" >> $GITHUB_ENV
 
       # Build and Push Docker Image
       - name: Build and Push Docker Image
@@ -44,6 +45,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest
 
+      # Optionally, you could include a step to check if the image build was successful
       - name: Verify Image Push
         run: |
           echo "Image pushed successfully to ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest"
