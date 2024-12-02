@@ -36,7 +36,7 @@ jobs:
           echo "service_lowercase=${service_lowercase}" >> $GITHUB_ENV
 
       # Build and Push Docker Image
-      - name: Build and Push Docker Image
+      - name: Build and Push Image
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -44,8 +44,3 @@ jobs:
           push: true
           tags: |
             ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest
-
-      # Optionally, you could include a step to check if the image build was successful
-      - name: Verify Image Push
-        run: |
-          echo "Image pushed successfully to ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest"
