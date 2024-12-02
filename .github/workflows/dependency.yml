@@ -24,7 +24,7 @@ jobs:
 
       # Step 3: Cache NuGet Packages
       - name: Cache NuGet Packages
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
           key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
