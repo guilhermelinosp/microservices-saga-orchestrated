@@ -1,14 +1,43 @@
 on:
   pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read  # Allows access to repository contents for dependency review
+  security-events: write  # Needed for the dependency review action to function
 
 jobs:
   dependency:
+    runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout Repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
+      # Step 2: Setup .NET
+      - name: Setup .NET
         uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x' # Replace with your required version (e.g., 6.0.x, 7.0.x)
 
+      # Step 3: Cache NuGet Packages
+      - name: Cache NuGet Packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', '**/*.sln') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # Step 4: Restore Dependencies
+      - name: Restore Dependencies
         run: dotnet restore
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: 1  # Disable telemetry to ensure clean output
+          DOTNET_NOLOGO: true            # Suppress branding
 
+      # Step 5: Run Dependency Review
+      - name: Run Dependency Review
         uses: actions/dependency-review-action@v4
