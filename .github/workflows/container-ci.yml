@@ -14,11 +14,13 @@ jobs:
     strategy:
       matrix:
         service: ["Inventories", "Orchestrators", "Orders", "Payments", "Stocks"]
-    
+
     steps:
+      # Checkout the repository to access the code
       - name: Check out the repository
         uses: actions/checkout@v4
 
+      # Login to GitHub Container Registry to push Docker images
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
@@ -26,16 +28,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Dynamically create the lowercase service name
       - name: Set Service Lowercase
         id: set_service_lowercase
         run: |
-          echo "service_lowercase=$(echo ${{ matrix.service }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+          echo "service_lowercase=${{ matrix.service | toLowerCase }}" >> $GITHUB_ENV
 
-      - name: Set Cache Image for Docker Layer Caching
-        id: docker-cache
-        run: |
-          echo "::set-output name=cache-image::ghcr.io/${{ github.actor }}/cache-${{ steps.set_service_lowercase.outputs.service_lowercase }}:build"
-      
+      # Build and Push Docker Image
       - name: Build and Push Docker Image
         uses: docker/build-push-action@v6
         with:
@@ -43,7 +42,8 @@ jobs:
           file: ./${{ matrix.service }}/${{ matrix.service }}.API/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.actor }}/${{ steps.set_service_lowercase.outputs.service_lowercase }}-api:latest
-            ghcr.io/${{ github.actor }}/${{ steps.set_service_lowercase.outputs.service_lowercase }}-api:${{ github.sha }}
-          cache-from: type=registry,ref=${{ steps.docker-cache.outputs.cache-image }}
-          cache-to: type=registry,ref=${{ steps.docker-cache.outputs.cache-image }},mode=push
+            ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest
+
+      - name: Verify Image Push
+        run: |
+          echo "Image pushed successfully to ghcr.io/${{ github.actor }}/${{ env.service_lowercase }}-api:latest"
